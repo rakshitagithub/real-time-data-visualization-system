@@ -1,0 +1,43 @@
+import AWS from 'aws-sdk';
+import React, { useEffect, useState } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+
+const awsConfig = {
+  region: 'your_region',
+  accessKeyId: 'your_access_key_id',
+  secretAccessKey: 'your_secret_access_key',
+};
+
+const App = () => {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      AWS.config.update(awsConfig);
+      const ec2 = new AWS.EC2();
+      const params = { InstanceIds: ['instance_id'], Command: 'cat data.txt' };
+      const response = await ec2.sendCommand(params).promise();
+      const newData = response.data.split('\n').map(item => JSON.parse(item));
+      setData(newData);
+    };
+
+    const interval = setInterval(fetchData, 10000); // Fetch data every 10 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div>
+      <LineChart width={800} height={400} data={data}>
+        <XAxis dataKey="timestamp" />
+        <YAxis />
+        <CartesianGrid stroke="#eee" strokeDasharray="5 5" />
+        <Line type="monotone" dataKey="value" stroke="#8884d8" />
+        <Tooltip />
+        <Legend />
+      </LineChart>
+    </div>
+  );
+};
+
+export default App;
