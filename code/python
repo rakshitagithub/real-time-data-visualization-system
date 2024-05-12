@@ -1,0 +1,19 @@
+import boto3
+import time
+import random
+
+# Initialize AWS SDK
+client = boto3.client('ec2', region_name='your_region')
+
+while True:
+    # Generate sample data (replace with your data source)
+    data = {'timestamp': time.time(), 'value': random.randint(1, 100)}
+    
+    # Push data to EC2 instance (replace instance_id and data format)
+    response = client.send_command(
+        InstanceIds=['instance_id'],
+        DocumentName='AWS-RunShellScript',
+        Parameters={'commands': f'echo {data} >> data.txt'}
+    )
+    
+    time.sleep(10)  # Push data every 10 seconds
